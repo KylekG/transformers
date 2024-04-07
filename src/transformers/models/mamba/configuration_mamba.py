@@ -23,9 +23,6 @@ from ...utils import logging
 logger = logging.get_logger(__name__)
 
 
-from ..deprecated._archive_maps import MAMBA_PRETRAINED_CONFIG_ARCHIVE_MAP  # noqa: F401, E402
-
-
 class MambaConfig(PretrainedConfig):
     """
     This is the configuration class to store the configuration of a [`MambaModel`]. It is used to instantiate a MAMBA
@@ -143,7 +140,8 @@ class MambaConfig(PretrainedConfig):
         self.use_conv_bias = use_conv_bias
         self.hidden_act = hidden_act
         self.initializer_range = initializer_range
-        self.time_step_rank = math.ceil(self.hidden_size / 16) if time_step_rank == "auto" else time_step_rank
+        self.time_step_rank = math.ceil(
+            self.hidden_size / 16) if time_step_rank == "auto" else time_step_rank
         self.time_step_scale = time_step_scale
         self.time_step_min = time_step_min
         self.time_step_max = time_step_max
@@ -153,4 +151,5 @@ class MambaConfig(PretrainedConfig):
         self.residual_in_fp32 = residual_in_fp32
         self.use_cache = use_cache
 
-        super().__init__(bos_token_id=bos_token_id, eos_token_id=eos_token_id, pad_token_id=pad_token_id, **kwargs)
+        super().__init__(bos_token_id=bos_token_id,
+                         eos_token_id=eos_token_id, pad_token_id=pad_token_id, **kwargs)
