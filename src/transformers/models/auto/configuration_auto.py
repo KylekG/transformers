@@ -137,6 +137,7 @@ CONFIG_MAPPING_NAMES = OrderedDict(
         ("luke", "LukeConfig"),
         ("lxmert", "LxmertConfig"),
         ("m2m_100", "M2M100Config"),
+        ("mamba", "MambaConfig"),
         ("marian", "MarianConfig"),
         ("markuplm", "MarkupLMConfig"),
         ("mask2former", "Mask2FormerConfig"),
@@ -273,7 +274,8 @@ CONFIG_ARCHIVE_MAP_MAPPING_NAMES = OrderedDict(
         ("albert", "ALBERT_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("align", "ALIGN_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("altclip", "ALTCLIP_PRETRAINED_CONFIG_ARCHIVE_MAP"),
-        ("audio-spectrogram-transformer", "AUDIO_SPECTROGRAM_TRANSFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP"),
+        ("audio-spectrogram-transformer",
+         "AUDIO_SPECTROGRAM_TRANSFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("autoformer", "AUTOFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("bark", "BARK_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("bart", "BART_PRETRAINED_CONFIG_ARCHIVE_MAP"),
@@ -370,6 +372,7 @@ CONFIG_ARCHIVE_MAP_MAPPING_NAMES = OrderedDict(
         ("luke", "LUKE_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("lxmert", "LXMERT_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("m2m_100", "M2M_100_PRETRAINED_CONFIG_ARCHIVE_MAP"),
+        ("mamba", "MAMBA_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("markuplm", "MARKUPLM_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("mask2former", "MASK2FORMER_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("maskformer", "MASKFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP"),
@@ -445,7 +448,8 @@ CONFIG_ARCHIVE_MAP_MAPPING_NAMES = OrderedDict(
         ("t5", "T5_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("table-transformer", "TABLE_TRANSFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("tapas", "TAPAS_PRETRAINED_CONFIG_ARCHIVE_MAP"),
-        ("time_series_transformer", "TIME_SERIES_TRANSFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP"),
+        ("time_series_transformer",
+         "TIME_SERIES_TRANSFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("timesformer", "TIMESFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("transfo-xl", "TRANSFO_XL_PRETRAINED_CONFIG_ARCHIVE_MAP"),
         ("tvlt", "TVLT_PRETRAINED_CONFIG_ARCHIVE_MAP"),
@@ -607,6 +611,7 @@ MODEL_NAMES_MAPPING = OrderedDict(
         ("luke", "LUKE"),
         ("lxmert", "LXMERT"),
         ("m2m_100", "M2M100"),
+        ("mamba", "Mamba"),
         ("madlad-400", "MADLAD-400"),
         ("marian", "Marian"),
         ("markuplm", "MarkupLM"),
@@ -826,7 +831,8 @@ class _LazyConfigMapping(OrderedDict):
         value = self._mapping[key]
         module_name = model_type_to_module_name(key)
         if module_name not in self._modules:
-            self._modules[module_name] = importlib.import_module(f".{module_name}", "transformers.models")
+            self._modules[module_name] = importlib.import_module(
+                f".{module_name}", "transformers.models")
         if hasattr(self._modules[module_name], value):
             return getattr(self._modules[module_name], value)
 
@@ -855,7 +861,8 @@ class _LazyConfigMapping(OrderedDict):
         Register a new configuration in this mapping.
         """
         if key in self._mapping.keys() and not exist_ok:
-            raise ValueError(f"'{key}' is already used by a Transformers config, pick another name.")
+            raise ValueError(
+                f"'{key}' is already used by a Transformers config, pick another name.")
         self._extra_content[key] = value
 
 
@@ -887,7 +894,8 @@ class _LazyLoadAllMappings(OrderedDict):
 
         for model_type, map_name in self._mapping.items():
             module_name = model_type_to_module_name(model_type)
-            module = importlib.import_module(f".{module_name}", "transformers.models")
+            module = importlib.import_module(
+                f".{module_name}", "transformers.models")
             mapping = getattr(module, map_name)
             self._data.update(mapping)
 
@@ -918,7 +926,8 @@ class _LazyLoadAllMappings(OrderedDict):
         return item in self._data
 
 
-ALL_PRETRAINED_CONFIG_ARCHIVE_MAP = _LazyLoadAllMappings(CONFIG_ARCHIVE_MAP_MAPPING_NAMES)
+ALL_PRETRAINED_CONFIG_ARCHIVE_MAP = _LazyLoadAllMappings(
+    CONFIG_ARCHIVE_MAP_MAPPING_NAMES)
 
 
 def _get_class_name(model_class: Union[str, List[str]]):
@@ -929,10 +938,12 @@ def _get_class_name(model_class: Union[str, List[str]]):
 
 def _list_model_options(indent, config_to_class=None, use_model_types=True):
     if config_to_class is None and not use_model_types:
-        raise ValueError("Using `use_model_types=False` requires a `config_to_class` dictionary.")
+        raise ValueError(
+            "Using `use_model_types=False` requires a `config_to_class` dictionary.")
     if use_model_types:
         if config_to_class is None:
-            model_type_to_name = {model_type: f"[`{config}`]" for model_type, config in CONFIG_MAPPING_NAMES.items()}
+            model_type_to_name = {model_type: f"[`{
+                config}`]" for model_type, config in CONFIG_MAPPING_NAMES.items()}
         else:
             model_type_to_name = {
                 model_type: _get_class_name(model_class)
@@ -940,7 +951,8 @@ def _list_model_options(indent, config_to_class=None, use_model_types=True):
                 if model_type in MODEL_NAMES_MAPPING
             }
         lines = [
-            f"{indent}- **{model_type}** -- {model_type_to_name[model_type]} ({MODEL_NAMES_MAPPING[model_type]} model)"
+            f"{indent}- **{model_type}** -- {
+                model_type_to_name[model_type]} ({MODEL_NAMES_MAPPING[model_type]} model)"
             for model_type in sorted(model_type_to_name.keys())
         ]
     else:
@@ -954,7 +966,8 @@ def _list_model_options(indent, config_to_class=None, use_model_types=True):
         }
         lines = [
             f"{indent}- [`{config_name}`] configuration class:"
-            f" {config_to_name[config_name]} ({config_to_model_name[config_name]} model)"
+            f" {config_to_name[config_name]
+                } ({config_to_model_name[config_name]} model)"
             for config_name in sorted(config_to_name.keys())
         ]
     return "\n".join(lines)
@@ -971,11 +984,13 @@ def replace_list_option_in_docstrings(config_to_class=None, use_model_types=True
             indent = re.search(r"^(\s*)List options\s*$", lines[i]).groups()[0]
             if use_model_types:
                 indent = f"{indent}    "
-            lines[i] = _list_model_options(indent, config_to_class=config_to_class, use_model_types=use_model_types)
+            lines[i] = _list_model_options(
+                indent, config_to_class=config_to_class, use_model_types=use_model_types)
             docstrings = "\n".join(lines)
         else:
             raise ValueError(
-                f"The function {fn} should have an empty 'List options' in its docstring as placeholder, current"
+                f"The function {
+                    fn} should have an empty 'List options' in its docstring as placeholder, current"
                 f" docstring is:\n{docstrings}"
             )
         fn.__doc__ = docstrings
@@ -1004,7 +1019,8 @@ class AutoConfig:
             config_class = CONFIG_MAPPING[model_type]
             return config_class(*args, **kwargs)
         raise ValueError(
-            f"Unrecognized model identifier: {model_type}. Should contain one of {', '.join(CONFIG_MAPPING.keys())}"
+            f"Unrecognized model identifier: {model_type}. Should contain one of {
+                ', '.join(CONFIG_MAPPING.keys())}"
         )
 
     @classmethod
@@ -1108,9 +1124,12 @@ class AutoConfig:
         trust_remote_code = kwargs.pop("trust_remote_code", None)
         code_revision = kwargs.pop("code_revision", None)
 
-        config_dict, unused_kwargs = PretrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
-        has_remote_code = "auto_map" in config_dict and "AutoConfig" in config_dict["auto_map"]
-        has_local_code = "model_type" in config_dict and config_dict["model_type"] in CONFIG_MAPPING
+        config_dict, unused_kwargs = PretrainedConfig.get_config_dict(
+            pretrained_model_name_or_path, **kwargs)
+        has_remote_code = "auto_map" in config_dict and "AutoConfig" in config_dict[
+            "auto_map"]
+        has_local_code = "model_type" in config_dict and config_dict[
+            "model_type"] in CONFIG_MAPPING
         trust_remote_code = resolve_trust_remote_code(
             trust_remote_code, pretrained_model_name_or_path, has_local_code, has_remote_code
         )
@@ -1128,7 +1147,8 @@ class AutoConfig:
                 config_class = CONFIG_MAPPING[config_dict["model_type"]]
             except KeyError:
                 raise ValueError(
-                    f"The checkpoint you are trying to load has model type `{config_dict['model_type']}` "
+                    f"The checkpoint you are trying to load has model type `{
+                        config_dict['model_type']}` "
                     "but Transformers does not recognize this architecture. This could be because of an "
                     "issue with the checkpoint, or because your version of Transformers is out of date."
                 )
@@ -1142,7 +1162,8 @@ class AutoConfig:
 
         raise ValueError(
             f"Unrecognized model in {pretrained_model_name_or_path}. "
-            f"Should have a `model_type` key in its {CONFIG_NAME}, or contain one of the following strings "
+            f"Should have a `model_type` key in its {
+                CONFIG_NAME}, or contain one of the following strings "
             f"in its name: {', '.join(CONFIG_MAPPING.keys())}"
         )
 
@@ -1158,7 +1179,8 @@ class AutoConfig:
         if issubclass(config, PretrainedConfig) and config.model_type != model_type:
             raise ValueError(
                 "The config you are passing has a `model_type` attribute that is not consistent with the model type "
-                f"you passed (config has {config.model_type} and you passed {model_type}. Fix one of those so they "
+                f"you passed (config has {config.model_type} and you passed {
+                    model_type}. Fix one of those so they "
                 "match!"
             )
         CONFIG_MAPPING.register(model_type, config, exist_ok=exist_ok)

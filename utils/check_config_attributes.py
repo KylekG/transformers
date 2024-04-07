@@ -52,6 +52,8 @@ SPECIAL_CASES_TO_ALLOW = {
     "GraphormerConfig": ["spatial_pos_max"],
     # used internally in the configuration class file
     "T5Config": ["feed_forward_proj"],
+    # used as in the config to define `intermediate_size`
+    "MambaConfig": ["expand"],
     # used internally in the configuration class file
     # `tokenizer_class` get default value `T5Tokenizer` intentionally
     "MT5Config": ["feed_forward_proj", "tokenizer_class"],
@@ -185,7 +187,8 @@ def check_attribute_being_used(config_class, attributes, default_value, source_s
             # Deal with multi-line cases
             elif (
                 re.search(
-                    rf'getattr[ \t\v\n\r\f]*\([ \t\v\n\r\f]*(self\.)?config,[ \t\v\n\r\f]*"{attribute}"',
+                    rf'getattr[ \t\v\n\r\f]*\([ \t\v\n\r\f]*(self\.)?config,[ \t\v\n\r\f]*"{
+                        attribute}"',
                     modeling_source,
                 )
                 is not None
@@ -247,7 +250,8 @@ def check_attribute_being_used(config_class, attributes, default_value, source_s
 
             # configuration class specific cases
             if not case_allowed:
-                allowed_cases = SPECIAL_CASES_TO_ALLOW.get(config_class.__name__, [])
+                allowed_cases = SPECIAL_CASES_TO_ALLOW.get(
+                    config_class.__name__, [])
                 case_allowed = allowed_cases is True or attribute in allowed_cases
 
     return attribute_used or case_allowed
@@ -262,20 +266,24 @@ def check_config_attributes_being_used(config_class):
     """
     # Get the parameters in `__init__` of the configuration class, and the default values if any
     signature = dict(inspect.signature(config_class.__init__).parameters)
-    parameter_names = [x for x in list(signature.keys()) if x not in ["self", "kwargs"]]
-    parameter_defaults = [signature[param].default for param in parameter_names]
+    parameter_names = [x for x in list(signature.keys()) if x not in [
+        "self", "kwargs"]]
+    parameter_defaults = [
+        signature[param].default for param in parameter_names]
 
     # If `attribute_map` exists, an attribute can have different names to be used in the modeling files, and as long
     # as one variant is used, the test should pass
     reversed_attribute_map = {}
     if len(config_class.attribute_map) > 0:
-        reversed_attribute_map = {v: k for k, v in config_class.attribute_map.items()}
+        reversed_attribute_map = {v: k for k,
+                                  v in config_class.attribute_map.items()}
 
     # Get the path to modeling source files
     config_source_file = inspect.getsourcefile(config_class)
     model_dir = os.path.dirname(config_source_file)
     # Let's check against all frameworks: as long as one framework uses an attribute, we are good.
-    modeling_paths = [os.path.join(model_dir, fn) for fn in os.listdir(model_dir) if fn.startswith("modeling_")]
+    modeling_paths = [os.path.join(model_dir, fn) for fn in os.listdir(
+        model_dir) if fn.startswith("modeling_")]
 
     # Get the source code strings
     modeling_sources = []
@@ -317,7 +325,8 @@ def check_config_attributes():
             )
         ]
         for config_class in config_classes_in_module:
-            unused_attributes = check_config_attributes_being_used(config_class)
+            unused_attributes = check_config_attributes_being_used(
+                config_class)
             if len(unused_attributes) > 0:
                 configs_with_unused_attributes[config_class.__name__] = unused_attributes
 

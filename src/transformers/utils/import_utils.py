@@ -72,7 +72,8 @@ ACCELERATE_MIN_VERSION = "0.21.0"
 FSDP_MIN_VERSION = "1.12.0"
 
 
-_accelerate_available, _accelerate_version = _is_package_available("accelerate", return_version=True)
+_accelerate_available, _accelerate_version = _is_package_available(
+    "accelerate", return_version=True)
 _apex_available = _is_package_available("apex")
 _aqlm_available = _is_package_available("aqlm")
 _bitsandbytes_available = _is_package_available("bitsandbytes")
@@ -97,7 +98,8 @@ except importlib.metadata.PackageNotFoundError:
         _faiss_available = False
 _ftfy_available = _is_package_available("ftfy")
 _g2p_en_available = _is_package_available("g2p_en")
-_ipex_available, _ipex_version = _is_package_available("intel_extension_for_pytorch", return_version=True)
+_ipex_available, _ipex_version = _is_package_available(
+    "intel_extension_for_pytorch", return_version=True)
 _jieba_available = _is_package_available("jieba")
 _jinja_available = _is_package_available("jinja2")
 _kenlm_available = _is_package_available("kenlm")
@@ -133,11 +135,14 @@ if _sklearn_available:
         importlib.metadata.version("scikit-learn")
     except importlib.metadata.PackageNotFoundError:
         _sklearn_available = False
-_smdistributed_available = importlib.util.find_spec("smdistributed") is not None
+_smdistributed_available = importlib.util.find_spec(
+    "smdistributed") is not None
 _soundfile_available = _is_package_available("soundfile")
 _spacy_available = _is_package_available("spacy")
-_sudachipy_available, _sudachipy_version = _is_package_available("sudachipy", return_version=True)
-_tensorflow_probability_available = _is_package_available("tensorflow_probability")
+_sudachipy_available, _sudachipy_version = _is_package_available(
+    "sudachipy", return_version=True)
+_tensorflow_probability_available = _is_package_available(
+    "tensorflow_probability")
 _tensorflow_text_available = _is_package_available("tensorflow_text")
 _tf2onnx_available = _is_package_available("tf2onnx")
 _timm_available = _is_package_available("timm")
@@ -150,7 +155,8 @@ _torchvision_available = _is_package_available("torchvision")
 _torch_version = "N/A"
 _torch_available = False
 if USE_TORCH in ENV_VARS_TRUE_AND_AUTO_VALUES and USE_TF not in ENV_VARS_TRUE_VALUES:
-    _torch_available, _torch_version = _is_package_available("torch", return_version=True)
+    _torch_available, _torch_version = _is_package_available(
+        "torch", return_version=True)
 else:
     logger.info("Disabling PyTorch because USE_TF is set")
     _torch_available = False
@@ -192,7 +198,8 @@ else:
         if _tf_available:
             if version.parse(_tf_version) < version.parse("2"):
                 logger.info(
-                    f"TensorFlow found but with version {_tf_version}. Transformers requires version 2 minimum."
+                    f"TensorFlow found but with version {
+                        _tf_version}. Transformers requires version 2 minimum."
                 )
                 _tf_available = False
     else:
@@ -210,7 +217,8 @@ except importlib.metadata.PackageNotFoundError:
 _pretty_midi_available = importlib.util.find_spec("pretty_midi") is not None
 try:
     _pretty_midi_version = importlib.metadata.version("pretty_midi")
-    logger.debug(f"Successfully imported pretty_midi version {_pretty_midi_version}")
+    logger.debug(f"Successfully imported pretty_midi version {
+                 _pretty_midi_version}")
 except importlib.metadata.PackageNotFoundError:
     _pretty_midi_available = False
 
@@ -229,11 +237,14 @@ except importlib.metadata.PackageNotFoundError:
 
 _flax_available = False
 if USE_JAX in ENV_VARS_TRUE_AND_AUTO_VALUES:
-    _flax_available, _flax_version = _is_package_available("flax", return_version=True)
+    _flax_available, _flax_version = _is_package_available(
+        "flax", return_version=True)
     if _flax_available:
-        _jax_available, _jax_version = _is_package_available("jax", return_version=True)
+        _jax_available, _jax_version = _is_package_available(
+            "jax", return_version=True)
         if _jax_available:
-            logger.info(f"JAX version {_jax_version}, Flax version {_flax_version} available.")
+            logger.info(f"JAX version {_jax_version}, Flax version {
+                        _flax_version} available.")
         else:
             _flax_available = _jax_available = False
             _jax_version = _flax_version = "N/A"
@@ -306,6 +317,27 @@ def is_torch_cuda_available():
         return False
 
 
+def is_mamba_ssm_available():
+    if is_torch_available():
+        import torch
+
+        if not torch.cuda.is_available():
+            return False
+        else:
+            return _is_package_available("mamba_ssm")
+    return False
+
+
+def is_causal_conv1d_available():
+    if is_torch_available():
+        import torch
+
+        if not torch.cuda.is_available():
+            return False
+        return _is_package_available("causal_conv1d")
+    return False
+
+
 def is_torch_mps_available():
     if is_torch_available():
         import torch
@@ -364,8 +396,10 @@ def is_torch_fp16_available_on_device(device):
         # At this moment, let's be strict of the check: check if `LayerNorm` is also supported on device, because many
         # models use this layer.
         batch, sentence_length, embedding_dim = 3, 4, 5
-        embedding = torch.randn(batch, sentence_length, embedding_dim, dtype=torch.float16, device=device)
-        layer_norm = torch.nn.LayerNorm(embedding_dim, dtype=torch.float16, device=device)
+        embedding = torch.randn(
+            batch, sentence_length, embedding_dim, dtype=torch.float16, device=device)
+        layer_norm = torch.nn.LayerNorm(
+            embedding_dim, dtype=torch.float16, device=device)
         _ = layer_norm(embedding)
 
     except:  # noqa: E722
@@ -599,8 +633,10 @@ def is_ipex_available():
     ipex_major_and_minor = get_major_and_minor_from_version(_ipex_version)
     if torch_major_and_minor != ipex_major_and_minor:
         logger.warning(
-            f"Intel Extension for PyTorch {ipex_major_and_minor} needs to work with PyTorch {ipex_major_and_minor}.*,"
-            f" but PyTorch {_torch_version} is found. Please switch to the matching version and run again."
+            f"Intel Extension for PyTorch {
+                ipex_major_and_minor} needs to work with PyTorch {ipex_major_and_minor}.*,"
+            f" but PyTorch {
+                _torch_version} is found. Please switch to the matching version and run again."
         )
         return False
     return True
@@ -1272,11 +1308,13 @@ BACKENDS_MAPPING = OrderedDict(
         ("pyctcdecode", (is_pyctcdecode_available, PYCTCDECODE_IMPORT_ERROR)),
         ("pytesseract", (is_pytesseract_available, PYTESSERACT_IMPORT_ERROR)),
         ("sacremoses", (is_sacremoses_available, SACREMOSES_IMPORT_ERROR)),
-        ("pytorch_quantization", (is_pytorch_quantization_available, PYTORCH_QUANTIZATION_IMPORT_ERROR)),
+        ("pytorch_quantization", (is_pytorch_quantization_available,
+         PYTORCH_QUANTIZATION_IMPORT_ERROR)),
         ("sentencepiece", (is_sentencepiece_available, SENTENCEPIECE_IMPORT_ERROR)),
         ("sklearn", (is_sklearn_available, SKLEARN_IMPORT_ERROR)),
         ("speech", (is_speech_available, SPEECH_IMPORT_ERROR)),
-        ("tensorflow_probability", (is_tensorflow_probability_available, TENSORFLOW_PROBABILITY_IMPORT_ERROR)),
+        ("tensorflow_probability", (is_tensorflow_probability_available,
+         TENSORFLOW_PROBABILITY_IMPORT_ERROR)),
         ("tf", (is_tf_available, TENSORFLOW_IMPORT_ERROR)),
         ("tensorflow_text", (is_tensorflow_text_available, TENSORFLOW_TEXT_IMPORT_ERROR)),
         ("timm", (is_timm_available, TIMM_IMPORT_ERROR)),
@@ -1353,7 +1391,8 @@ class _LazyModule(ModuleType):
             for value in values:
                 self._class_to_module[value] = key
         # Needed for autocompletion in an IDE
-        self.__all__ = list(import_structure.keys()) + list(chain(*import_structure.values()))
+        self.__all__ = list(import_structure.keys()) + \
+            list(chain(*import_structure.values()))
         self.__file__ = module_file
         self.__spec__ = module_spec
         self.__path__ = [os.path.dirname(module_file)]
@@ -1380,7 +1419,8 @@ class _LazyModule(ModuleType):
             module = self._get_module(self._class_to_module[name])
             value = getattr(module, name)
         else:
-            raise AttributeError(f"module {self.__name__} has no attribute {name}")
+            raise AttributeError(
+                f"module {self.__name__} has no attribute {name}")
 
         setattr(self, name, value)
         return value
@@ -1390,7 +1430,8 @@ class _LazyModule(ModuleType):
             return importlib.import_module("." + module_name, self.__name__)
         except Exception as e:
             raise RuntimeError(
-                f"Failed to import {self.__name__}.{module_name} because of the following error (look up to see its"
+                f"Failed to import {self.__name__}.{
+                    module_name} because of the following error (look up to see its"
                 f" traceback):\n{e}"
             ) from e
 
@@ -1414,7 +1455,8 @@ def direct_transformers_import(path: str, file="__init__.py") -> ModuleType:
     """
     name = "transformers"
     location = os.path.join(path, file)
-    spec = importlib.util.spec_from_file_location(name, location, submodule_search_locations=[path])
+    spec = importlib.util.spec_from_file_location(
+        name, location, submodule_search_locations=[path])
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     module = sys.modules[name]
