@@ -22,7 +22,7 @@ from ...utils import (
 
 
 _import_structure = {
-    "configuration_mamba": ["MAMBA_PRETRAINED_CONFIG_ARCHIVE_MAP", "MambaConfig", "MambaOnnxConfig"],
+    "configuration_mamba": ["MAMBA_PRETRAINED_CONFIG_ARCHIVE_MAP", "MambaConfig"],
 }
 
 try:
@@ -34,13 +34,14 @@ else:
     _import_structure["modeling_mamba"] = [
         "MAMBA_PRETRAINED_MODEL_ARCHIVE_LIST",
         "MambaForCausalLM",
+        "MambaForSequenceClassification",
         "MambaModel",
         "MambaPreTrainedModel",
     ]
 
 
 if TYPE_CHECKING:
-    from .configuration_mamba import MAMBA_PRETRAINED_CONFIG_ARCHIVE_MAP, MambaConfig, MambaOnnxConfig
+    from .configuration_mamba import MAMBA_PRETRAINED_CONFIG_ARCHIVE_MAP, MambaConfig
 
     try:
         if not is_torch_available():
@@ -51,10 +52,12 @@ if TYPE_CHECKING:
         from .modeling_mamba import (
             MAMBA_PRETRAINED_MODEL_ARCHIVE_LIST,
             MambaForCausalLM,
+            MambaForSequenceClassification,
             MambaModel,
             MambaPreTrainedModel,
         )
 else:
     import sys
 
-    sys.modules[__name__] = _LazyModule(__name__, globals()["__file__"], _import_structure, module_spec=__spec__)
+    sys.modules[__name__] = _LazyModule(
+        __name__, globals()["__file__"], _import_structure, module_spec=__spec__)

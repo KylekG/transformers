@@ -2611,6 +2611,7 @@ else:
         [
             "MAMBA_PRETRAINED_MODEL_ARCHIVE_LIST",
             "MambaForCausalLM",
+            "MambaForSequenceClassification",
             "MambaModel",
             "MambaPreTrainedModel",
         ]
@@ -7196,6 +7197,7 @@ if TYPE_CHECKING:
         from .models.mamba import (
             MAMBA_PRETRAINED_MODEL_ARCHIVE_LIST,
             MambaForCausalLM,
+            MambaForSequenceClassification,
             MambaModel,
             MambaPreTrainedModel,
         )
