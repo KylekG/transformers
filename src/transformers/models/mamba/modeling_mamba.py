@@ -20,7 +20,7 @@ from typing import Any, Dict, Optional, Tuple, Union
 import torch
 import torch.utils.checkpoint
 from torch import nn
-from torch.nn import CrossEntropyLoss
+from torch.nn import CrossEntropyLoss, BCEWithLogitsLoss, MSELoss
 
 from ...activations import ACT2FN
 from ...modeling_utils import PreTrainedModel
@@ -31,7 +31,7 @@ from ...utils import (
     add_start_docstrings_to_model_forward,
     logging,
 )
-from ...utils.import_utils import is_causal_conv1d_available, is_mamba_ssm_available, logging
+from ...utils.import_utils import is_causal_conv1d_available, is_mamba_ssm_available
 from .configuration_mamba import MambaConfig
 
 logger = logging.get_logger(__name__)
@@ -443,6 +443,7 @@ class MambaOutput(ModelOutput):
     last_hidden_state: Optional[torch.FloatTensor] = None
     cache_params: Optional[MambaCache] = None
     hidden_states: Optional[Tuple[torch.FloatTensor]] = None
+    attentions = None
 
 
 @dataclass
@@ -471,6 +472,7 @@ class MambaCausalLMOutput(ModelOutput):
     logits: Optional[torch.FloatTensor] = None
     cache_params: Optional[MambaCache] = None
     hidden_states: Optional[Tuple[torch.FloatTensor]] = None
+    attentions = None
 
 
 @dataclass
@@ -499,6 +501,7 @@ class MambaSequenceClassificationOutput(ModelOutput):
     logits: Optional[torch.FloatTensor] = None
     cache_params: Optional[MambaCache] = None
     hidden_states: Optional[Tuple[torch.FloatTensor]] = None
+    attentions = None
 
 
 MAMBA_START_DOCSTRING = r"""
